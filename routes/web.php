@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuarioDashboardController;
 use App\Http\Controllers\TesoreroDashboardController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Services\AuditChain;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,9 +72,24 @@ Route::middleware(['auth', '2fa'])->group(function () {
         ->middleware('role:admin')
         ->name('admin.users.destroy');
 
+    /*
+    |--------------------------------------------------------------------------
+    | ✅ Blockchain / Hash-chain verify (solo admin)
+    |--------------------------------------------------------------------------
+    | Endpoint para verificar integridad de la cadena de auditoría:
+    | Devuelve JSON:
+    |   - ok: true si todo está bien
+    |   - ok: false + broken_at si algo fue manipulado
+    */
+    Route::get('/dashboard/admin/audit-chain/verify', function (AuditChain $chain) {
+        return response()->json($chain->verify());
+    })
+        ->middleware('role:admin')
+        ->name('admin.audit.verify');
+
     Route::get('/dashboard/tesorero', [TesoreroDashboardController::class, 'index'])
-    ->middleware('role:tesorero')
-    ->name('dashboard.tesorero');
+        ->middleware('role:tesorero')
+        ->name('dashboard.tesorero');
 
     Route::get('/dashboard/usuario', [UsuarioDashboardController::class, 'index'])
         ->middleware('role:usuario')
