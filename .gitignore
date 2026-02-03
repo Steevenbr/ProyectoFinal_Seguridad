@@ -22,3 +22,6 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+wazuh-install-files.tar
+wazuh-install.sh
