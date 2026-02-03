@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 
+
 class AdminDashboardController extends Controller
 {
     public function index(Request $request)
@@ -23,6 +24,26 @@ class AdminDashboardController extends Controller
             ->withQueryString();
 
         return view('dashboards.admin', compact('users', 'q'));
+    }
+
+    public function store(Request $request)
+    {
+        // Usamos "bag" para que los errores SOLO abran este modal, no por otras acciones
+        $data = $request->validateWithBag('createUser', [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'role' => ['required', 'in:usuario,tesorero,admin'],
+            'password' => ['required', 'confirmed', Password::min(8)],
+        ]);
+
+        User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'role' => $data['role'],
+            'password' => Hash::make($data['password']),
+        ]);
+
+        return back()->with('success', 'Usuario creado correctamente.');
     }
 
     public function updateRole(Request $request, User $user)
