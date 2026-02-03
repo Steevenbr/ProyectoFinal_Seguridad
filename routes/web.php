@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TwoFactorChallengeController;
 use App\Http\Controllers\TwoFactorSetupController;
+use App\Http\Controllers\Auth\SocialAuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuarioDashboardController;
 use App\Http\Controllers\TesoreroDashboardController;
@@ -16,6 +17,21 @@ use App\Http\Controllers\AdminDashboardController;
 Route::get('/', function () {
     return view('welcome');
 });
+
+/*
+|--------------------------------------------------------------------------
+| OAuth 2.0 Google (solo invitados)
+|--------------------------------------------------------------------------
+| - /auth/google -> redirige a Google
+| - /auth/google/callback -> vuelve a tu app
+*/
+Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle'])
+    ->middleware('guest')
+    ->name('auth.google');
+
+Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback'])
+    ->middleware('guest')
+    ->name('auth.google.callback');
 
 /*
 |--------------------------------------------------------------------------
