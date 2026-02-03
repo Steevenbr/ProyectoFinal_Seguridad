@@ -71,4 +71,18 @@
             </x-primary-button>
         </div>
     </form>
+
+    <!-- Botón Google OAuth (dentro del layout) -->
+    <div class="mt-6">
+        <div class="relative flex items-center">
+            <div class="flex-grow border-t border-gray-200"></div>
+            <span class="mx-3 text-sm text-gray-500">o</span>
+            <div class="flex-grow border-t border-gray-200"></div>
+        </div>
+
+        <a href="{{ route('auth.google') }}"
+           class="mt-4 w-full inline-flex justify-center items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+            Iniciar sesión con Google
+        </a>
+    </div>
 </x-guest-layout>
