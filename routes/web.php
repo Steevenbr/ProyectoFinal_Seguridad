@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TwoFactorChallengeController;
 use App\Http\Controllers\TwoFactorSetupController;
+use App\Http\Controllers\Auth\SocialAuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuarioDashboardController;
 use App\Http\Controllers\TesoreroDashboardController;
@@ -16,6 +17,21 @@ use App\Http\Controllers\AdminDashboardController;
 Route::get('/', function () {
     return view('welcome');
 });
+
+/*
+|--------------------------------------------------------------------------
+| OAuth 2.0 Google (solo invitados)
+|--------------------------------------------------------------------------
+| - /auth/google -> redirige a Google
+| - /auth/google/callback -> vuelve a tu app
+*/
+Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle'])
+    ->middleware('guest')
+    ->name('auth.google');
+
+Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback'])
+    ->middleware('guest')
+    ->name('auth.google.callback');
 
 /*
 |--------------------------------------------------------------------------
@@ -66,6 +82,10 @@ Route::middleware(['auth', '2fa'])->group(function () {
     Route::post('/dashboard/usuario/comprar/{product}', [UsuarioDashboardController::class, 'buy'])
         ->middleware('role:usuario')
         ->name('usuario.buy');
+    
+    Route::post('/dashboard/admin/users', [AdminDashboardController::class, 'store'])
+        ->middleware('role:admin')
+        ->name('admin.users.store');
 
     // /dashboard redirige según rol
     Route::get('/dashboard', function () {
