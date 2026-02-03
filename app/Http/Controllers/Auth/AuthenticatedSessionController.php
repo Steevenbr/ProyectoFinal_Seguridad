@@ -25,17 +25,22 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
 
-        $role = auth()->user()->role ?? 'usuario';
+        // Por defecto: no aprobado
+        $request->session()->put('2fa_passed', false);
 
-return match ($role) {
-    'admin'    => redirect()->route('dashboard.admin'),
-    'tesorero' => redirect()->route('dashboard.tesorero'),
-    default    => redirect()->route('dashboard.usuario'),
-};
+        $user = $request->user();
 
+        // Si el usuario tiene 2FA activado, obligar challenge
+        if (!empty($user->google2fa_enabled_at) && !empty($user->google2fa_secret)) {
+            return redirect()->route('2fa.challenge');
+        }
+
+        // Si no tiene 2FA, aprobado directo
+        $request->session()->put('2fa_passed', true);
+
+        return redirect()->intended(route('dashboard'));
     }
 
     /**
@@ -45,8 +50,10 @@ return match ($role) {
     {
         Auth::guard('web')->logout();
 
-        $request->session()->invalidate();
+        // 👇 importante: borrar el estado de 2FA en sesión
+        $request->session()->forget('2fa_passed');
 
+        $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect('/');
